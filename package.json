@@ -1,0 +1,14 @@
+{
+  "name": "pop-pyramid",
+  "version": "1.0.0",
+  "description": "This application is used for visual comparison of two population pyramid data sets ",
+  "main": "app.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Pavel Mircea",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^3.0.10"
+  }
+}
