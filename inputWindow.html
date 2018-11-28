@@ -4,21 +4,113 @@
     <title>Adauga date</title>
 </head>
 <body>
-    <form>
-        <div>
+    <form class="display:table">
+        <div >
             <label>Dataset A</label>
-            <input type="text" autofocus>
-            <input type="file" id="datasetA">
+            <div class="display:table-cell">
+                <input type="text" disabled placeholder="Path to file" id="textDatasetA">
+                <input type="file" id="datasetA" style="display: none;" />
+                <input type="button" value="Cauta" onclick="document.getElementById('datasetA').click();" />
+            </div>
         </div>
         <br/>
         <div>
         <label>Dataset B</label>
-            <input type="text" autofocus>
-            <input type="file" id="datasetB" autofocus>
+            <div class="display:table-cell">
+                <input type="text" disabled placeholder="Path to file" id="textDatasetB">
+                <input type="file" id="datasetB" style="display: none;" />
+                <input type="button" value="Cauta" onclick="document.getElementById('datasetB').click();" />
+            </div>
         </div>
         <br/>
-        <button type="submit">OK</button>
+        <button type="submit" class="btn btn-primary btn-cons">OK</button>
     </form>
-    
+
+    <script>
+        "use strict";
+        const electron = require('electron');
+        const { ipcRenderer } = electron;
+        const readSingleFile = require('./libs/fileReader');
+        const csvToArray = require('./libs/csvToArray');
+        
+
+        const textA = document.querySelector('#textDatasetA');
+        const dataA = document.querySelector('#datasetA');
+        const textB = document.querySelector('#textDatasetB');
+        const dataB = document.querySelector('#datasetB');
+        const form = document.querySelector('form');
+
+        let csvDataA;
+        let csvDataB;
+        
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const dataA = document.querySelector('#textDatasetA').value;
+            const dataB = document.querySelector('#textDatasetB').value;
+            ipcRenderer.send('dataA', [csvDataA, csvDataB]);
+        });
+
+
+        dataA.addEventListener('change', function(){
+            
+            if (dataA.files.length > 0){
+                // Update display path
+                textA.value = dataA.files[0].path;
+                // Read into memory
+                const reader = readSingleFile.getAsText(dataA.files[0]);
+                csvDataA = csvToArray.toCsv(reader.result, ',');
+            }
+        });
+        
+        //dataA.addEventListener('change', readSingleFile, false);
+
+        dataB.addEventListener('change', () => {
+            debugger;
+            if (dataB.files.length > 0){
+                // Update display path
+                textB.value = dataB.files[0].path;
+                // Read into memory
+                const reader = readSingleFile.getAsText(dataB.files[0]);
+                csvDataB = csvToArray.toCsv(reader.result, ',');
+                console.log("Ok 2");
+            }
+        });
+    </script>
+    <style>
+.btn {
+display: inline-block;
+padding: 9px 12px;
+padding-top: 7px;
+margin-bottom: 0;
+font-size: 14px;
+line-height: 20px;
+color: #5e5e5e;
+text-align: center;
+vertical-align: middle;
+cursor: pointer;
+background-color: #d1dade;
+-webkit-border-radius: 3px;
+-webkit-border-radius: 3px;
+-webkit-border-radius: 3px;
+background-image: none !important;
+border: none;
+text-shadow: none;
+box-shadow: none;
+transition: all 0.12s linear 0s !important;
+font: 14px/20px "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+.btn-cons {
+margin-right: 5px;
+min-width: 120px;
+margin-bottom: 8px;
+}
+
+.btn-primary {
+color: #fff;
+background-color: #428bca;
+border-color: #357ebd;
+float: right;
+}
+    </style>    
 </body>
 </html>

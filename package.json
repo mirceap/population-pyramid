@@ -4,7 +4,8 @@
   "description": "This application is used for visual comparison of two population pyramid data sets ",
   "main": "app.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "test": "electron --inspect=9001 ."
   },
   "author": "Pavel Mircea",
   "license": "MIT",

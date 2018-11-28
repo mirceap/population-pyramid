@@ -1,7 +1,6 @@
 <!DOCTYPE <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Population Pyramid</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="./libs/d3.v4.min.js"></script>
     <script src="./libs/popPyramid.js"></script> 
@@ -9,19 +8,46 @@
 <body>
     <h1>Piramida polulatiei</h1>
     <div id="pyramid"></div>
+    <ul></ul>
     <script>
+        const electron = require('electron');
+        const csvToArray = require('./libs/csvToArray');
+        const {ipcRenderer} = electron;
+        const ul = document.querySelector('ul');
         // data must be in a format with age, male, and female in each object 
         var exampleData = [{ age: '0-9', male: 10, female: 12 }, { age: '10-19', male: 14, female: 15 }, { age: '20-29', male: 15, female: 18 }, { age: '30-39', male: 18, female: 18 }, { age: '40-49', male: 21, female: 22 }, {age: '50-59', male: 19, female: 24 }, { age: '60-69', male: 15, female: 14 }, {age: '70-79', male: 8, female: 10 }, { age: '80-89', male: 4, female: 5 }, {age: '90+', male: 2, female: 3 }]; 
         
+        const heightX = document.body.clientHeight - 0.2 * document.body.clientHeight;
+        const widthX =  document.body.clientWidth - 0.01 * document.body.clientWidth;
+        console.log(heightX);
+        console.log(widthX);
         var options = {
-            height: 400,
-            width: 600,
+            height: heightX,
+            width: widthX,
             style: {
             leftBarColor: "#229922",
             rightBarColor: "#992222"
             }
         }
         pyramidBuilder(exampleData, '#pyramid', options);
+        
+        ipcRenderer.on('dataA', (e, paths) => {
+            console.log(paths);
+            if (paths.length === 2){
+                csvToArray.csvParse()
+
+            }
+            
+            for (let i = 0; i < paths.length; i++){
+                const li = document.createElement('li');
+                const text = document.createTextNode(paths[i]);
+                li.appendChild(paths);
+                ul.appendChild(li);    
+            }
+        });
+
+        
+        
     </script>
 </body>
 </html>

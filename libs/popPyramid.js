@@ -1,6 +1,8 @@
 function pyramidBuilder(data, target, options) {
-    var w = typeof options.width === 'undefined' ? 400  : options.width,
-        h = typeof options.height === 'undefined' ? 400  : options.height,
+    debugger;
+    
+    var w = typeof options.width === 'undefined' ? 800  : options.width,
+        h = typeof options.height === 'undefined' ? 800  : options.height,
         w_full = w,
         h_full = h;
     if (w > document.body.clientWidth) {
@@ -76,7 +78,7 @@ function pyramidBuilder(data, target, options) {
         .attr('x', (w / 2) - (margin.middle * 2))
         .attr('y', 18)
         .attr('dy', '0.32em')
-        .text('Males');
+        .text('Barbati');
 
     legend.append('rect')
         .attr('class', 'bar right')
@@ -90,7 +92,7 @@ function pyramidBuilder(data, target, options) {
         .attr('x', (w / 2) + (margin.middle * 3))
         .attr('y', 18)
         .attr('dy', '0.32em')
-        .text('Females');
+        .text('Femei');
 
     var tooltipDiv = d3.select("body").append("div")
         .attr("class", "tooltip")

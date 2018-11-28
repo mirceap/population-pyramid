@@ -2,7 +2,7 @@ const elecron = require('electron');
 const url = require('url');
 const path = require('path');
 
-const { app, BrowserWindow, Menu }  = elecron;
+const { app, BrowserWindow, Menu, ipcMain }  = elecron;
 
 let mainWindow;
 let inputWindow;
@@ -17,6 +17,7 @@ app.on('ready', () => {
         protocol:'file',
         slashes: true
     }));
+    mainWindow.setTitle("Piramida populatiei");
 
     // Quit app when closed
     mainWindow.on('closed', () => app.quit());
@@ -28,7 +29,7 @@ Menu.setApplicationMenu(mainMenu);
 });
 
 // Handle create add window
-function createAddWindow(){
+function createItemWindow(){
     // Create new window
     inputWindow = new BrowserWindow({
         width: 350,
@@ -50,6 +51,13 @@ let chooseAccelerator = function(key){
     return process.platform == 'darwin' ? 'Command+' + key : 'Ctrl+' + key;
 };
 
+// Catch sourceA
+ipcMain.on('sourceA', (e, [sourceA, dataB]) => {
+    console.log([sourceA, dataB])
+    mainWindow.webContents.send('sourceA', [sourceA, dataB]);
+    inputWindow.close();
+});
+
 // Create menu template
 const mainMenuTemplate = [
     {
@@ -59,7 +67,7 @@ const mainMenuTemplate = [
                 label: 'Add Item',
                 accelerator: chooseAccelerator("W"),
                 click(){
-                    createAddWindow();
+                    createItemWindow();
                 }
             },
             {
@@ -74,6 +82,7 @@ const mainMenuTemplate = [
 ];
 
 // If mac, add empty object to the menu 
+// for correct rendering
 if (process.platform == "darwin"){
     mainMenuTemplate.unshift({});
 }
