@@ -2,7 +2,7 @@
 
 var exports = module.exports = {};
 
-exports.getAsText = (readFile) => {
+exports.getAsText = (readFile, loadedCb, errorCb) => {
 
     var reader = new FileReader();
     // Read file into memory as UTF-8
@@ -28,16 +28,17 @@ exports.getAsText = (readFile) => {
     function loaded(evt) {
         // Obtain the read file data
         var fileString = evt.target.result;
+        loadedCb(fileString);
         if (fileString == undefined){
             reader.error = "Error when loading the file into memory."
         }
+        
     }
 
     function errorHandler(evt) {
         if(evt.target.error.name == "NotReadableError") {
             // The file could not be read
-            reader.error = "NotReadeableError";
+            errorCb("NotReadeableError on" + this.readFile);
         }
     }
-    return reader;
 };

@@ -12,6 +12,7 @@
     <script>
         const electron = require('electron');
         const csvToArray = require('./libs/csvToArray');
+        const readSingleFile = require('./libs/fileReader');
         const {ipcRenderer} = electron;
         const ul = document.querySelector('ul');
         // data must be in a format with age, male, and female in each object 
@@ -19,8 +20,6 @@
         
         const heightX = document.body.clientHeight - 0.2 * document.body.clientHeight;
         const widthX =  document.body.clientWidth - 0.01 * document.body.clientWidth;
-        console.log(heightX);
-        console.log(widthX);
         var options = {
             height: heightX,
             width: widthX,
@@ -31,19 +30,19 @@
         }
         pyramidBuilder(exampleData, '#pyramid', options);
         
-        ipcRenderer.on('dataA', (e, paths) => {
-            console.log(paths);
-            if (paths.length === 2){
-                csvToArray.csvParse()
+        ipcRenderer.on('data', (e, paths) => {
+            //const reader = readSingleFile.getAsText(paths[0]);
+            if (paths.length !== 2){
+                alert("Something went wrong!");
+            }
+            const datasetA = paths[0];
+            const datasetB = paths[1];
 
-            }
-            
-            for (let i = 0; i < paths.length; i++){
-                const li = document.createElement('li');
-                const text = document.createTextNode(paths[i]);
-                li.appendChild(paths);
-                ul.appendChild(li);    
-            }
+            debugger;
+            // const reader = paths[0];
+            // const csvDataA = csvToArray.toCsv(reader.result, ',');
+            // console.log(csvDataA);
+
         });
 
         

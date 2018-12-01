@@ -51,10 +51,9 @@ let chooseAccelerator = function(key){
     return process.platform == 'darwin' ? 'Command+' + key : 'Ctrl+' + key;
 };
 
-// Catch sourceA
-ipcMain.on('sourceA', (e, [sourceA, dataB]) => {
-    console.log([sourceA, dataB])
-    mainWindow.webContents.send('sourceA', [sourceA, dataB]);
+// Catch data
+ipcMain.on('data', (e, [dataA, dataB]) => {
+    mainWindow.webContents.send('data', [dataA, dataB]);
     inputWindow.close();
 });
 

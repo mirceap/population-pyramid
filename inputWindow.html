@@ -11,6 +11,7 @@
                 <input type="text" disabled placeholder="Path to file" id="textDatasetA">
                 <input type="file" id="datasetA" style="display: none;" />
                 <input type="button" value="Cauta" onclick="document.getElementById('datasetA').click();" />
+                <a id="dataA" style="visibility: visible"></a>
             </div>
         </div>
         <br/>
@@ -20,6 +21,7 @@
                 <input type="text" disabled placeholder="Path to file" id="textDatasetB">
                 <input type="file" id="datasetB" style="display: none;" />
                 <input type="button" value="Cauta" onclick="document.getElementById('datasetB').click();" />
+                <a id="dataB" style="visibility: hidden"></a>
             </div>
         </div>
         <br/>
@@ -32,6 +34,7 @@
         const { ipcRenderer } = electron;
         const readSingleFile = require('./libs/fileReader');
         const csvToArray = require('./libs/csvToArray');
+        const delimiter = "/\\/!/\\/";
         
 
         const textA = document.querySelector('#textDatasetA');
@@ -40,39 +43,48 @@
         const dataB = document.querySelector('#datasetB');
         const form = document.querySelector('form');
 
-        let csvDataA;
-        let csvDataB;
-        
+        const csvDataA = [];
+        const csvDataB = [];
+
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-            const dataA = document.querySelector('#textDatasetA').value;
-            const dataB = document.querySelector('#textDatasetB').value;
-            ipcRenderer.send('dataA', [csvDataA, csvDataB]);
-        });
+            const dataA = document.querySelector('#dataA');
+            const dataB = document.querySelector('#dataB');
 
-
-        dataA.addEventListener('change', function(){
-            
-            if (dataA.files.length > 0){
-                // Update display path
-                textA.value = dataA.files[0].path;
-                // Read into memory
-                const reader = readSingleFile.getAsText(dataA.files[0]);
-                csvDataA = csvToArray.toCsv(reader.result, ',');
-            }
+            ipcRenderer.send('data', [csvDataA, csvDataB]);
         });
         
-        //dataA.addEventListener('change', readSingleFile, false);
+        // Callback function for 
+        // ToDo: handle error
+        const loadedCallbackA = function(evt){
+            csvDataA.push(evt);
+        }    
 
-        dataB.addEventListener('change', () => {
-            debugger;
-            if (dataB.files.length > 0){
+        dataA.addEventListener('change', function(){
+            if (dataA.files.length > 0){
+                const datasetA = document.querySelector('#datasetA');
                 // Update display path
-                textB.value = dataB.files[0].path;
+                textA.value = datasetA.files[0].path;
                 // Read into memory
-                const reader = readSingleFile.getAsText(dataB.files[0]);
-                csvDataB = csvToArray.toCsv(reader.result, ',');
-                console.log("Ok 2");
+                readSingleFile.getAsText(datasetA.files[0], loadedCallbackA);
+            }
+        });
+
+        const loadedCallbackB = function(evt){
+            csvDataB.push(evt);
+            //dataB.innertText = reader.result + delimiter;
+        }
+        
+        dataB.addEventListener('change', () => {
+            if (dataB.files.length > 0){
+                const datasetB = document.querySelector('#datasetB');
+                // Update display path
+                textB.value = datasetB.files[0].path;
+                // Read into memory
+                readSingleFile.getAsText(datasetB.files[0], loadedCallbackB);
+                // const dataB = document.querySelector('#dataB');
+
+                // dataB.innertText = reader.result + delimiter;
             }
         });
     </script>
