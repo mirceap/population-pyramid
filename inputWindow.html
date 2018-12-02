@@ -11,7 +11,6 @@
                 <input type="text" disabled placeholder="Path to file" id="textDatasetA">
                 <input type="file" id="datasetA" style="display: none;" />
                 <input type="button" value="Cauta" onclick="document.getElementById('datasetA').click();" />
-                <a id="dataA" style="visibility: visible"></a>
             </div>
         </div>
         <br/>
@@ -21,7 +20,6 @@
                 <input type="text" disabled placeholder="Path to file" id="textDatasetB">
                 <input type="file" id="datasetB" style="display: none;" />
                 <input type="button" value="Cauta" onclick="document.getElementById('datasetB').click();" />
-                <a id="dataB" style="visibility: hidden"></a>
             </div>
         </div>
         <br/>
@@ -49,9 +47,19 @@
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const dataA = document.querySelector('#dataA');
-            const dataB = document.querySelector('#dataB');
+            const dataB = document.querySelector('#dataB'); 
+            const data = { 
+                datasetA: { 
+                    result: csvDataA[csvDataA.length - 1], 
+                    file: textA.value
+                }, 
+                datasetB: { 
+                    result: csvDataB[csvDataB.length - 1], 
+                    file: textB.value
+                }
+            };
 
-            ipcRenderer.send('data', [csvDataA, csvDataB]);
+            ipcRenderer.send('data', data);
         });
         
         // Callback function for 

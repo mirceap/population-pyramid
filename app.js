@@ -52,8 +52,8 @@ let chooseAccelerator = function(key){
 };
 
 // Catch data
-ipcMain.on('data', (e, [dataA, dataB]) => {
-    mainWindow.webContents.send('data', [dataA, dataB]);
+ipcMain.on('data', (e, data) => {
+    mainWindow.webContents.send('data', data);
     inputWindow.close();
 });
 
