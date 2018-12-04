@@ -3,191 +3,58 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="./libs/d3.v4.min.js"></script>
-    <script src="./libs/popPyramid.js"></script> 
+    <script src="./libs/popPyramid.js"></script>
+    <style>
+        [contenteditable="true"].single-line {
+            white-space: nowrap;
+            width:785px;
+            overflow: hidden;
+        } 
+        [contenteditable="true"].single-line br {
+            display:none;
+
+        }
+        [contenteditable="true"].single-line * {
+            /* display:inline; */
+            white-space:nowrap;
+        }
+    </style>
 </head>
 <body>
-    <h1>Piramida polulatiei</h1>
+    <h1 style="text-align: center">Piramida polulatiei</h1>
     <div id="pyramid"></div>
-    <ul></ul>
+    <h4 id="comments" style="text-align: center;visibility: hidden;" contenteditable="true" class="single-line">Lore ipsum</h4>
     <script>
         const electron = require('electron');
         const csvToArray = require('./libs/csvToArray');
-        const readSingleFile = require('./libs/fileReader');
-        const {ipcRenderer} = electron;
-        const ul = document.querySelector('ul');
+        const parser = require('./libs/dataConverter.js');
+        const { ipcRenderer } = electron;
         // data must be in a format with age, male, and female in each object 
         var exampleData = [{ age: '0-9', male: 10, female: 12 }, { age: '10-19', male: 14, female: 15 }, { age: '20-29', male: 15, female: 18 }, { age: '30-39', male: 18, female: 18 }, { age: '40-49', male: 21, female: 22 }, {age: '50-59', male: 19, female: 24 }, { age: '60-69', male: 15, female: 14 }, {age: '70-79', male: 8, female: 10 }, { age: '80-89', male: 4, female: 5 }, {age: '90+', male: 2, female: 3 }]; 
+        const build = (data, options) => {
+            pyramidBuilder(data, '#pyramid', options);
+        };
         
-        const heightX = document.body.clientHeight - 0.2 * document.body.clientHeight;
+        const heightX = document.body.clientHeight - 0.215 * document.body.clientHeight;
         const widthX =  document.body.clientWidth - 0.01 * document.body.clientWidth;
         var options = {
             height: heightX,
             width: widthX,
             style: {
-            leftBarColor: "#229922",
-            rightBarColor: "#992222"
+            leftBarColor: "#1f78b4",
+            rightBarColor: "#f33"
             }
         };
-        pyramidBuilder(exampleData, '#pyramid', options);
 
-        const validateHeader = (data) =>{
-            let HEADER = [
-                "Varste si grupe de varsta", 
-                " Sexe", 
-                " Medii de rezidenta", 
-                " Macroregiuni  regiuni de dezvoltare si judete", 
-                " Ani", 
-                " UM: Numar persoane", 
-                " Valoare"
-            ];
-            return JSON.stringify(HEADER) === JSON.stringify(data);
-        };
-
-        const validateAndReturnAgeRow = (row, ageIndex) => {
-            const insseAgeCategories =  [
-                "0- 4 ani", "0 ani", "1 ani", "2 ani", "3 ani", "4 ani", "5- 9 ani", "5 ani", "6 ani", "7 ani", "8 ani", "9 ani", 
-                "10-14 ani", "10 ani", "11 ani", "12 ani", "13 ani", "14 ani", "15-19 ani", "15 ani", "16 ani", "17 ani", "18 ani", "19 ani", 
-                "20-24 ani", "20 ani", "21 ani", "22 ani", "23 ani", "24 ani", "25-29 ani", "25 ani", "26 ani", "27 ani", "28 ani", "29 ani", 
-                "30-34 ani", "30 ani", "31 ani", "32 ani", "33 ani", "34 ani", "35-39 ani", "35 ani", "36 ani", "37 ani", "38 ani", "39 ani", 
-                "40-44 ani", "40 ani", "41 ani", "42 ani", "43 ani", "44 ani", "45-49 ani", "45 ani", "46 ani", "47 ani", "48 ani", "49 ani", 
-                "50-54 ani", "50 ani", "51 ani", "52 ani", "53 ani", "54 ani", "55-59 ani", "55 ani", "56 ani", "57 ani", "58 ani", "59 ani", 
-                "60-64 ani", "60 ani", "61 ani", "62 ani", "63 ani", "64 ani", "65-69 ani", "65 ani", "66 ani", "67 ani", "68 ani", "69 ani", 
-                "70-74 ani", "70 ani", "71 ani", "72 ani", "73 ani", "74 ani", "75-79 ani", "75 ani", "76 ani", "77 ani", "78 ani", "79 ani", 
-                "80-84 ani", "80 ani", "81 ani", "82 ani", "83 ani", "84 ani", "85 ani si peste"
-            ];
-            if (insseAgeCategories.includes(row[ageIndex].trim())){
-                return row[ageIndex].trim();
-            }
-            // not the right input filed
-            return "";
-        };
-
-        const validateAndReturnSexRow = (row, sexIndex) => {
-            const insseSexCategories = [ "Masculin", "Feminin" ];
-            if (insseSexCategories.includes(row[sexIndex].trim())){
-                return row[sexIndex].trim();
-            }
-            // not the right input filed
-            return "";
-        };
-        
-        const validateMediiRow = (row, mediiIndex) => {
-            const insseMediiRezidenta = [ "Total" , "Urban", "Rural" ];
-            const acceptedMediiRezidenta = [ "Total" ];
-            return insseMediiRezidenta.includes(row[mediiIndex].trim()) && acceptedMediiRezidenta.includes(row[mediiIndex].trim());
-        };
-
-        const validateRegiuni = (row, regiuniIndex) => {
-            const insseMacroregiuni = [ 
-                "TOTAL", "MACROREGIUNEA UNU", "Regiunea NORD-VEST", "Bihor", "Bistrita-Nasaud", "Cluj", "Maramures", "Satu Mare", "Salaj", 
-                    "Regiunea CENTRU", "Alba", "Brasov", "Covasna", "Harghita", "Mures", "Sibiu", 
-                    "MACROREGIUNEA DOI", "Regiunea NORD-EST", "Bacau", "Botosani", "Iasi", "Neamt", "Suceava", "Vaslui", 
-                    "Regiunea SUD-EST", "Braila", "Buzau", "Constanta", "Galati", "Tulcea", "Vrancea", 
-                    "MACROREGIUNEA TREI", "Regiunea SUD-MUNTENIA", "Arges", "Calarasi", "Dambovita", "Giurgiu", "Ialomita", "Prahova", "Teleorman", 
-                    "Regiunea BUCURESTI - ILFOV", "Ilfov", "Municipiul Bucuresti", 
-                    "MACROREGIUNEA PATRU", "Regiunea SUD-VEST OLTENIA", "Dolj", "Gorj", "Mehedinti", "Olt", "Valcea", 
-                    "Regiunea VEST", "Arad", "Caras-Severin", "Hunedoara", "Timis" 
-            ];
-            const acceptedMacroregiuni = [ "TOTAL" ];
-            return insseMacroregiuni.includes(row[regiuniIndex].trim()) && acceptedMacroregiuni.includes(row[regiuniIndex].trim());
-        };
-
-        const validateAndReturnAni = (row, aniIndex) => {
-            const insseAni = "Anul ";
+        ipcRenderer.on('data', (e, data) => {
+            const csvDataAResult = csvToArray.toCsv(data.datasetA.result, ',');
+            const csvDataA = { result: csvDataAResult, path: data.datasetA.file };
+            const newData = parser.parseData(csvDataA);
+            let pData = newData.value.data[0];
+            document.querySelector('#comments').style.visibility = "visible";
             
-            if (row[aniIndex].trim().substring(0, 5) === insseAni){
-                let val = parseInt(row[aniIndex].trim().substring(5).trim());
-                if (val !== "NaN" && val >= 0){
-                    return val;
-                }
-                // value wasn't parsed correctly or was < 0
-                return -1;
-            }
-            // not the right input filed
-            return -2;
-        };
-
-        const validateUM = (row, umIndex) => {
-            const insseUM = [ "Numar persoane" ];
-            return insseUM.includes(row[umIndex].trim());
-        };
-
-        const validateAndReturnValoare = (row, valIndex) => {
-            let val = parseInt(row[valIndex]);
-            if ( val !== "NaN" && val >= 0){
-                return val;
-            }
-            // value wasn't parsed correctly or was < 0
-            return -1;
-        };
-
-        const validateAndGetRow = (row) => {
-            const ageIndex = 0;
-            const sexIndex = 1;
-            const mediiRezidentaIndex = 2;
-            const regiuniIndex = 3;
-            const aniIndex = 4;
-            const umIndex = 5;
-            const valIndex = 6;
-            if (!validateMediiRow(row, mediiRezidentaIndex)
-            || !validateRegiuni(row, regiuniIndex)
-            || !validateUM(row, umIndex)){
-                // ToDo: Handle errors 
-                // validation error array
-                return "";
-            };
-            return {
-                ageGroup: validateAndReturnAgeRow(row, ageIndex),
-                sex: validateAndReturnSexRow(row, sexIndex),
-                an: validateAndReturnAni(row, aniIndex),
-                valoare: validateAndReturnValoare(row, valIndex)
-            };
-        };
-
-        const parseData = (data) => {
-            const response = { value: [], errorMessages: [] };
-            const yearList = [];
-            const yearData = [];
-            let text = data.result;
-            let firstRow = text[0];
-            if (!validateHeader(firstRow)) {
-                response.errorMessages = "Fisierul " + data.path + " nu are formatul corespunzator.";
-            }
-            for (var i = 1; i < text.length - 1; i++){
-                let currentRow = text[i];
-                let rowObj = validateAndGetRow(currentRow);
-                let categorie = rowObj.an;
-                if (!yearList.includes(categorie)){
-                    yearList.push(categorie);
-                    yearData.push([]);
-                }
-                const element = { 
-                    ageGroup: rowObj.ageGroup, 
-                    sex: rowObj.sex, 
-                    value: rowObj.valoare
-                };
-                index = yearList.indexOf(categorie);
-                yearData[index].push(element);
-            }
-            // ToDo: return object as in example data
-            debugger;
-            console.log();
-        };
-        
-        ipcRenderer.on('data', (e, newData) => {
-            const csvDataAResult = csvToArray.toCsv(newData.datasetA.result, ',');
-            const csvDataA = { result: csvDataAResult, path: newData.datasetA.file };
-            const newPyramid = parseData(csvDataA);
-            const datasetA = newData[0];
-            const datasetB = newData[1];
-
-            debugger;
-            // const reader = paths[0];
-
-
+            build(pData, options);
         });
-
-        
         
     </script>
 </body>

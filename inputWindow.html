@@ -15,8 +15,8 @@
         </div>
         <br/>
         <div>
-        <label>Dataset B</label>
-            <div class="display:table-cell">
+        <label style="visibility: hidden;">Dataset B</label>
+            <div class="display:table-cell" style="visibility: hidden;">
                 <input type="text" disabled placeholder="Path to file" id="textDatasetB">
                 <input type="file" id="datasetB" style="display: none;" />
                 <input type="button" value="Cauta" onclick="document.getElementById('datasetB').click();" />
@@ -47,7 +47,7 @@
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const dataA = document.querySelector('#dataA');
-            const dataB = document.querySelector('#dataB'); 
+            const dataB = document.querySelector('#dataB');
             const data = { 
                 datasetA: { 
                     result: csvDataA[csvDataA.length - 1], 
@@ -64,8 +64,8 @@
         
         // Callback function for 
         // ToDo: handle error
-        const loadedCallbackA = function(evt){
-            csvDataA.push(evt);
+        const loadedCallbackA = function(data){
+            csvDataA.push(data);
         }    
 
         dataA.addEventListener('change', function(){

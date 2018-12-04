@@ -1,6 +1,4 @@
 function pyramidBuilder(data, target, options) {
-    debugger;
-    
     var w = typeof options.width === 'undefined' ? 800  : options.width,
         h = typeof options.height === 'undefined' ? 800  : options.height,
         w_full = w,
