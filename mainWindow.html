@@ -15,15 +15,16 @@
 
         }
         [contenteditable="true"].single-line * {
-            /* display:inline; */
+            display:inline;
             white-space:nowrap;
         }
     </style>
 </head>
 <body>
-    <h1 style="text-align: center">Piramida polulatiei</h1>
+    <h1 id="subtitle" style="text-align: center">Piramida polulației</h1>
+    <h2 style="text-align: center" ></h2>
     <div id="pyramid"></div>
-    <h4 id="comments" style="text-align: center;visibility: hidden;" contenteditable="true" class="single-line">Lore ipsum</h4>
+    <h4 id="comments" style="text-align: center;visibility: hidden;" contenteditable="true" class="single-line"></h4>
     <script>
         const electron = require('electron');
         const csvToArray = require('./libs/csvToArray');
@@ -32,10 +33,11 @@
         // data must be in a format with age, male, and female in each object 
         var exampleData = [{ age: '0-9', male: 10, female: 12 }, { age: '10-19', male: 14, female: 15 }, { age: '20-29', male: 15, female: 18 }, { age: '30-39', male: 18, female: 18 }, { age: '40-49', male: 21, female: 22 }, {age: '50-59', male: 19, female: 24 }, { age: '60-69', male: 15, female: 14 }, {age: '70-79', male: 8, female: 10 }, { age: '80-89', male: 4, female: 5 }, {age: '90+', male: 2, female: 3 }]; 
         const build = (data, options) => {
+            document.querySelector('#pyramid').innerText = "";
             pyramidBuilder(data, '#pyramid', options);
         };
         
-        const heightX = document.body.clientHeight - 0.215 * document.body.clientHeight;
+        const heightX = document.body.clientHeight - 0.2159 * document.body.clientHeight;
         const widthX =  document.body.clientWidth - 0.01 * document.body.clientWidth;
         var options = {
             height: heightX,
@@ -47,13 +49,26 @@
         };
 
         ipcRenderer.on('data', (e, data) => {
-            const csvDataAResult = csvToArray.toCsv(data.datasetA.result, ',');
-            const csvDataA = { result: csvDataAResult, path: data.datasetA.file };
-            const newData = parser.parseData(csvDataA);
-            let pData = newData.value.data[0];
-            document.querySelector('#comments').style.visibility = "visible";
-            
-            build(pData, options);
+            // effects
+            let comments = document.querySelector('#comments');
+            let title = document.querySelector('#subtitle');
+            title.innerHTML =  "Piramida polulației - anul " + data.year;
+            comments.style.visibility = "visible";
+            comments.innerHTML = "";
+            if (data.total.length > 0){
+                var sum = 0;
+                data.total.forEach(element => {
+                    comments.innerHTML += element.gender + ": " + element.value + " - ";
+                    sum += element.value;
+                    if (data.total.indexOf(element) === data.total.length - 1){
+                        comments.innerHTML += " Total: " + sum;
+                    }
+                });
+            } else {
+                comments.innerHTML = "Figura nr. ";
+            }
+
+            build(data.pyramidData, options);
         });
         
     </script>

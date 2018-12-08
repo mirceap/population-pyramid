@@ -33,7 +33,7 @@ function createItemWindow(){
     // Create new window
     inputWindow = new BrowserWindow({
         width: 350,
-        height: 200,
+        height: 205,
         title: 'Adauga date'
     });
     // Load html into window

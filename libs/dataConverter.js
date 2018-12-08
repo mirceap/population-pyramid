@@ -11,6 +11,7 @@ const HEADER = [
     " UM: Numar persoane", 
     " Valoare"
 ];
+const insseTotal = [ "Total" ];
 const insseSexCategories = [ "Masculin", "Feminin" ];
 const insseMediiRezidenta = [ "Total" , "Urban", "Rural" ];
 const insseUM = [ "Numar persoane" ];
@@ -70,7 +71,7 @@ const validateAndReturnAgeRow = (row, ageIndex) => {
         return group;
     }
     // not the right input filed
-    rowErrors.push("UnexpectedAgeGroup: Caracter neasteptat la citirea grupului de varsta in randul '" + row + "'.");
+    rowErrors.push("UnexpectedAgeGroup: Caracter neasteptat la citirea grupului de varsta in randul '" + row + "'.\n");
     return false;
 };
 
@@ -79,7 +80,7 @@ const validateAndReturnSexRow = (row, sexIndex) => {
         return row[sexIndex].trim();
     }
     // not the right input filed
-    rowErrors.push("UnexpectedSexType: Tipul de sex asteptat '" + insseSexCategories[0] + "' sau '" + insseSexCategories[1] + "' negasit in '" + row + "'.");
+    rowErrors.push("UnexpectedSexType: Tipul de sex asteptat '" + insseSexCategories[0] + "' sau '" + insseSexCategories[1] + "' negasit in '" + row + "'.\n");
     return false;
 };
 
@@ -93,10 +94,10 @@ const validateRegiuni = (row, regiuniIndex) => {
 
 const validateAndReturnAni = (row, aniIndex) => {
     if (row[aniIndex].trim().substring(0, 5) === insseAni){
-        return validateAndReturnInt(row[aniIndex].trim().substring(5).trim(), 0);
+        return validateAndReturnInt(row[aniIndex].trim().substring(5).trim());
     }
     // not the right input filed
-    rowErrors.push("UnexpectedAniType: Tipul de an asteptat '" + insseAni + "' negasit in '" + row + "'.");
+    rowErrors.push("UnexpectedAniType: Tipul de an asteptat '" + insseAni + "' negasit in '" + row + "'.\n");
     return false;
 };
 
@@ -105,21 +106,39 @@ const validateUM = (row, umIndex) => {
 };
 
 const validateAndReturnInt = (row, valIndex) => {
-    let val = parseInt(row[valIndex]);
+    let val;
+    if (valIndex === undefined){
+        val = parseInt(row);
+    } else{
+        val = parseInt(row[valIndex]);
+    }
+    
     if ( val !== "NaN" && val >= 0){
         return val;
     }
     // value wasn't parsed correctly or was < 0
-    rowErrors.push("UnexpectedInteger: Caracter neasteptat la citire in randul '" + row + "'.");
+    rowErrors.push("UnexpectedInteger: Caracter neasteptat la citire coloana " + valIndex + " in randul '" + row + "'.\n");
+    return false;
+};
+
+const validateIfTotalRow = (row) => {
+    var val = validateAndReturnInt(row, row.length - 1);
+    if (row[0].trim() === insseTotal[0] && val !== false){
+        return val;
+    }
     return false;
 };
 
 const validateAndGetRow = (row) => {
-    if (validateAndReturnInt(row, 0) === false){
-        // First row doesn't start with
-        rowErrors.push("Prima coloana din randul '" + row + "' nu incepe cu un numar intreg.");
-        return false;
+    var possible = validateIfTotalRow(row);
+    if (possible !== false){
+        return ({ year: validateAndReturnAni(row, aniIndex), gender: validateAndReturnSexRow(row, sexIndex), total: possible });
     }
+    // if (validateAndReturnInt(row, 0) === false && possible === ){
+    //     // First row doesn't start with
+    //     rowErrors.push("Prima coloana din randul '" + row + "' nu incepe cu un numar intreg sau cu 'Total'.\n");
+    //     return false;
+    // }
     let ageG = validateAndReturnAgeRow(row, ageIndex);
     let sexT = validateAndReturnSexRow(row, sexIndex);
     let ani = validateAndReturnAni(row, aniIndex);
@@ -143,31 +162,45 @@ const validateAndGetRow = (row) => {
 
 exports.parseData = (inputData) => {
     let errorsCount = 0;
-    let MAX_ERRORS = 15;
+    let MAX_ERRORS = 5;
     errors = [];
     const yearList = [];
     const result = [];
-    const text = inputData.result;
-    let firstRow = text[0];
-    if (!validateHeader(firstRow)) {
-        errors.push("Fisierul " + data.path + " nu are formatul corespunzator.");
-        return { value: { years: yearList , data: result } , errorMessages: errors };
+    let yearTotal = null;
+    if (inputData === null || inputData === undefined || inputData.length <= 1){
+        return { value: { years: yearList , data: result } , errors: "Input data was undefined or empty.\n" };
     }
-    for (var i = 1; i < text.length - 1; i++){
+    let firstRow = inputData[0];
+
+    // !header it's deal-breaker
+    if (!validateHeader(firstRow)) {
+        errors.push("Fisierul " + data.path + " nu are formatul corespunzator.\n");
+        return { value: { years: yearList , data: result } , errors: errors };
+    }
+    for (var i = 1; i < inputData.length - 1; i++){
         rowErrors = [];
-        let currentRow = text[i];
+        let currentRow = inputData[i];
 
         if (currentRow.length != HEADER.length){
             continue;
         }
         let rowObj = validateAndGetRow(currentRow);
+        
         if (rowObj === false){
             errors.push(rowErrors);
             errorsCount++;
             // Too many errors
             if (errorsCount === MAX_ERRORS){
-                return { value: { years: yearList , data: result } , errorMessages: errors };
+                return { value: { years: yearList , data: result } , errors: errors };
             }
+            continue;
+        }
+        
+        if (rowObj.total !== undefined){
+            if (yearTotal === null){ 
+                yearTotal = [] 
+            };
+            yearTotal.push(rowObj);
             continue;
         }
         let categorie = rowObj.an;
@@ -206,8 +239,6 @@ exports.parseData = (inputData) => {
         }
         resultData.push(partial);
     }
-    errors = null;
-
     // Return object as in example
-    return { value: { years: yearList , data: resultData } , errorMessages: errors };
+    return { value: { years: yearList, total: yearTotal, data: resultData } , errors: errors };
 };

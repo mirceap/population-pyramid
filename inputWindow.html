@@ -7,13 +7,17 @@
     <form class="display:table">
         <div >
             <label>Dataset A</label>
-            <div class="display:table-cell">
+            <div class="display:table-cell" id="table">
                 <input type="text" disabled placeholder="Path to file" id="textDatasetA">
                 <input type="file" id="datasetA" style="display: none;" />
                 <input type="button" value="Cauta" onclick="document.getElementById('datasetA').click();" />
             </div>
         </div>
         <br/>
+        <div style="visibility: hidden;" id="listbox">
+            <label>Alege un an:</label>
+            <div id="populateMe"></div>
+        </div>
         <div>
         <label style="visibility: hidden;">Dataset B</label>
             <div class="display:table-cell" style="visibility: hidden;">
@@ -32,7 +36,7 @@
         const { ipcRenderer } = electron;
         const readSingleFile = require('./libs/fileReader');
         const csvToArray = require('./libs/csvToArray');
-        const delimiter = "/\\/!/\\/";
+        const parser = require('./libs/dataConverter.js');
         
 
         const textA = document.querySelector('#textDatasetA');
@@ -46,26 +50,64 @@
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-            const dataA = document.querySelector('#dataA');
-            const dataB = document.querySelector('#dataB');
-            const data = { 
-                datasetA: { 
-                    result: csvDataA[csvDataA.length - 1], 
-                    file: textA.value
-                }, 
-                datasetB: { 
-                    result: csvDataB[csvDataB.length - 1], 
-                    file: textB.value
-                }
-            };
+            const selected = document.querySelector("#selectList");
+            var userPick = parseInt(selected.options[selected.selectedIndex].value);
+            var index = csvDataA[0].years.indexOf(parseInt(userPick));
+            var total = [];
+            if (csvDataA[0].total !== null){
+                    csvDataA[0].total.forEach(e => { 
+                    if (e.year === userPick) { 
+                        total.push( {gender: e.gender, value: e.total });
+                    }
+                });
+            }
+            const resObj = { pyramidData: csvDataA[0].data[index], year: userPick, total: total }
+            ipcRenderer.send('data', resObj);
 
-            ipcRenderer.send('data', data);
+            // const dataA = document.querySelector('#dataA');
+            // const dataB = document.querySelector('#dataB');
+            // const data = { 
+            //     datasetA: { 
+            //         result: csvDataA[csvDataA.length - 1], 
+            //         file: textA.value
+            //     }, 
+            //     datasetB: { 
+            //         result: csvDataB[csvDataB.length - 1], 
+            //         file: textB.value
+            //     }
+            // };
+
+            // ipcRenderer.send('data', data);
         });
         
         // Callback function for 
         // ToDo: handle error
         const loadedCallbackA = function(data){
-            csvDataA.push(data);
+            const csvDataAResult = csvToArray.toCsv(data, ',');
+            const result = parser.parseData(csvDataAResult);
+            if (result.errors.length === 0)
+            {
+                const selectBox = document.querySelector("#listbox");
+                const yearField = document.querySelector("#populateMe");
+                yearField.innerHTML = "";
+
+                selectBox.style.visibility = 'visible';
+
+                const selectList = document.createElement("select");
+                selectList.id = "selectList";
+                yearField.appendChild(selectList);
+
+                result.value.years.forEach(element => {
+                    var option = document.createElement("option");
+                    option.value = element;
+                    option.text = element;
+                    selectList.appendChild(option);
+                });
+                csvDataA.push(result.value);
+            } else {
+                alert("A aparut o eroare: " + result.errors);
+            }
+            // csvData = { result: csvDataAResult, path: data.datasetA.file };
         }    
 
         dataA.addEventListener('change', function(){

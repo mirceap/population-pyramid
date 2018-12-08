@@ -76,7 +76,7 @@ function pyramidBuilder(data, target, options) {
         .attr('x', (w / 2) - (margin.middle * 2))
         .attr('y', 18)
         .attr('dy', '0.32em')
-        .text('Barbati');
+        .text('Masculin');
 
     legend.append('rect')
         .attr('class', 'bar right')
@@ -90,7 +90,7 @@ function pyramidBuilder(data, target, options) {
         .attr('x', (w / 2) + (margin.middle * 3))
         .attr('y', 18)
         .attr('dy', '0.32em')
-        .text('Femei');
+        .text('Feminin');
 
     var tooltipDiv = d3.select("body").append("div")
         .attr("class", "tooltip")
@@ -203,9 +203,9 @@ function pyramidBuilder(data, target, options) {
             tooltipDiv.transition()
                 .duration(200)
                 .style("opacity", 0.9);
-            tooltipDiv.html("<strong>Males Age " + d.age + "</strong>" +
-                    "<br />  Population: " + prettyFormat(d.male) +
-                    "<br />" + (Math.round(percentage(d.male) * 1000) / 10) + "% of Total")
+            tooltipDiv.html("<strong> Masculin - " + d.age + " ani</strong>" +
+                    "<br />  Populație: " + prettyFormat(d.male) +
+                    "<br />" + (Math.round(percentage(d.male) * 1000) / 10) + "% din Total")
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
         })
@@ -231,9 +231,9 @@ function pyramidBuilder(data, target, options) {
             tooltipDiv.transition()
                 .duration(200)
                 .style("opacity", 0.9);
-            tooltipDiv.html("<strong> Females Age " + d.age + "</strong>" +
-                    "<br />  Population: " + prettyFormat(d.female) +
-                    "<br />" + (Math.round(percentage(d.female) * 1000) / 10) + "% of Total")
+            tooltipDiv.html("<strong> Feminin - " + d.age + " ani</strong>" +
+                    "<br />  Populație: " + prettyFormat(d.female) +
+                    "<br />" + (Math.round(percentage(d.female) * 1000) / 10) + "% din Total")
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
         })

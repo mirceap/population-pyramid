@@ -28,11 +28,11 @@ exports.getAsText = (readFile, loadedCb, errorCb) => {
     function loaded(evt) {
         // Obtain the read file data
         var fileString = evt.target.result;
-        loadedCb(fileString);
         if (fileString == undefined){
             reader.error = "Error when loading the file into memory."
+            return;
         }
-        
+        loadedCb(fileString);
     }
 
     function errorHandler(evt) {
