@@ -6,11 +6,11 @@
 <body>
     <form class="display:table">
         <div >
-            <label>Dataset A</label>
+            <label>Încărcare date: </label>
             <div class="display:table-cell" id="table">
-                <input type="text" disabled placeholder="Path to file" id="textDatasetA">
-                <input type="file" id="datasetA" style="display: none;" />
-                <input type="button" value="Cauta" onclick="document.getElementById('datasetA').click();" />
+                <input type="text" disabled placeholder=".csv" id="pathInput">
+                <input type="file" id="dataset" style="display: none;" />
+                <input type="button" class="btn btn-primary" value="Caută" onclick="document.getElementById('dataset').click();" />
             </div>
         </div>
         <br/>
@@ -18,16 +18,8 @@
             <label>Alege un an:</label>
             <div id="populateMe"></div>
         </div>
-        <div>
-        <label style="visibility: hidden;">Dataset B</label>
-            <div class="display:table-cell" style="visibility: hidden;">
-                <input type="text" disabled placeholder="Path to file" id="textDatasetB">
-                <input type="file" id="datasetB" style="display: none;" />
-                <input type="button" value="Cauta" onclick="document.getElementById('datasetB').click();" />
-            </div>
-        </div>
         <br/>
-        <button type="submit" class="btn btn-primary btn-cons">OK</button>
+        <button type="submit" class="btn btn-success">OK</button>
     </form>
 
     <script>
@@ -37,54 +29,42 @@
         const readSingleFile = require('./libs/fileReader');
         const csvToArray = require('./libs/csvToArray');
         const parser = require('./libs/dataConverter.js');
-        
 
-        const textA = document.querySelector('#textDatasetA');
-        const dataA = document.querySelector('#datasetA');
-        const textB = document.querySelector('#textDatasetB');
-        const dataB = document.querySelector('#datasetB');
+        const path = document.querySelector('#pathInput');
+        const dataSet = document.querySelector('#dataset');
         const form = document.querySelector('form');
 
-        const csvDataA = [];
-        const csvDataB = [];
+        const csvData = [];
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const selected = document.querySelector("#selectList");
-            var userPick = parseInt(selected.options[selected.selectedIndex].value);
-            var index = csvDataA[0].years.indexOf(parseInt(userPick));
+            if (selected === null || selected === undefined || selected === ""){
+                alert("Ups!\nAlegeti un fisier .csv!");
+            }
+            if (selected.selectedIndex < 0){
+                alert("Alegeti un alt set de date");
+            }
+            const value = selected.options[selected.selectedIndex].value;
+            var userPick = parseInt(value);
+            var index = csvData[0].years.indexOf(parseInt(userPick));
             var total = [];
-            if (csvDataA[0].total !== null){
-                    csvDataA[0].total.forEach(e => { 
+            if (csvData[0].total !== null){
+                    csvData[0].total.forEach(e => { 
                     if (e.year === userPick) { 
                         total.push( {gender: e.gender, value: e.total });
                     }
                 });
             }
-            const resObj = { pyramidData: csvDataA[0].data[index], year: userPick, total: total }
+            const resObj = { pyramidData: csvData[0].data[index], year: userPick, total: total }
             ipcRenderer.send('data', resObj);
-
-            // const dataA = document.querySelector('#dataA');
-            // const dataB = document.querySelector('#dataB');
-            // const data = { 
-            //     datasetA: { 
-            //         result: csvDataA[csvDataA.length - 1], 
-            //         file: textA.value
-            //     }, 
-            //     datasetB: { 
-            //         result: csvDataB[csvDataB.length - 1], 
-            //         file: textB.value
-            //     }
-            // };
-
-            // ipcRenderer.send('data', data);
         });
         
         // Callback function for 
         // ToDo: handle error
         const loadedCallbackA = function(data){
-            const csvDataAResult = csvToArray.toCsv(data, ',');
-            const result = parser.parseData(csvDataAResult);
+            const csvResult = csvToArray.toCsv(data, ',');
+            const result = parser.parseData(csvResult);
             if (result.errors.length === 0)
             {
                 const selectBox = document.querySelector("#listbox");
@@ -103,76 +83,21 @@
                     option.text = element;
                     selectList.appendChild(option);
                 });
-                csvDataA.push(result.value);
+                csvData.push(result.value);
             } else {
                 alert("A aparut o eroare: " + result.errors);
             }
-            // csvData = { result: csvDataAResult, path: data.datasetA.file };
         }    
 
-        dataA.addEventListener('change', function(){
-            if (dataA.files.length > 0){
-                const datasetA = document.querySelector('#datasetA');
+        dataSet.addEventListener('change', function(){
+            if (dataSet.files.length > 0){
+                const dataset = document.querySelector('#dataset');
                 // Update display path
-                textA.value = datasetA.files[0].path;
+                path.value = dataset.files[0].path;
                 // Read into memory
-                readSingleFile.getAsText(datasetA.files[0], loadedCallbackA);
-            }
-        });
-
-        const loadedCallbackB = function(evt){
-            csvDataB.push(evt);
-            //dataB.innertText = reader.result + delimiter;
-        }
-        
-        dataB.addEventListener('change', () => {
-            if (dataB.files.length > 0){
-                const datasetB = document.querySelector('#datasetB');
-                // Update display path
-                textB.value = datasetB.files[0].path;
-                // Read into memory
-                readSingleFile.getAsText(datasetB.files[0], loadedCallbackB);
-                // const dataB = document.querySelector('#dataB');
-
-                // dataB.innertText = reader.result + delimiter;
+                readSingleFile.getAsText(dataset.files[0], loadedCallbackA);
             }
         });
     </script>
-    <style>
-.btn {
-display: inline-block;
-padding: 9px 12px;
-padding-top: 7px;
-margin-bottom: 0;
-font-size: 14px;
-line-height: 20px;
-color: #5e5e5e;
-text-align: center;
-vertical-align: middle;
-cursor: pointer;
-background-color: #d1dade;
--webkit-border-radius: 3px;
--webkit-border-radius: 3px;
--webkit-border-radius: 3px;
-background-image: none !important;
-border: none;
-text-shadow: none;
-box-shadow: none;
-transition: all 0.12s linear 0s !important;
-font: 14px/20px "Helvetica Neue",Helvetica,Arial,sans-serif;
-}
-.btn-cons {
-margin-right: 5px;
-min-width: 120px;
-margin-bottom: 8px;
-}
-
-.btn-primary {
-color: #fff;
-background-color: #428bca;
-border-color: #357ebd;
-float: right;
-}
-    </style>    
 </body>
 </html>

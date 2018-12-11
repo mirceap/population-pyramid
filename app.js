@@ -1,8 +1,8 @@
-const elecron = require('electron');
+const electron = require('electron');
 const url = require('url');
 const path = require('path');
 
-const { app, BrowserWindow, Menu, ipcMain }  = elecron;
+const { app, BrowserWindow, Menu, ipcMain }  = electron;
 
 let mainWindow;
 let inputWindow;
@@ -10,14 +10,18 @@ let inputWindow;
 // Listen for app to be ready
 app.on('ready', () => {
     // Create new window
-    mainWindow = new BrowserWindow({});
+    mainWindow = new BrowserWindow({
+        resizable: false,
+        width: 1024,
+        height: 800
+    });
     // Load html into window
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'mainWindow.html'),
         protocol:'file',
         slashes: true
     }));
-    mainWindow.setTitle("Piramida populatiei");
+    mainWindow.setTitle("Demografie - piramida populatiei");
 
     // Quit app when closed
     mainWindow.on('closed', () => app.quit());
@@ -32,7 +36,7 @@ Menu.setApplicationMenu(mainMenu);
 function createItemWindow(){
     // Create new window
     inputWindow = new BrowserWindow({
-        width: 350,
+        width: 355,
         height: 205,
         title: 'Adauga date'
     });
@@ -46,7 +50,10 @@ function createItemWindow(){
     // Garbage collection handle
     inputWindow.on('close', () => { inputWindow = null });
 };
-
+  
+let saveAsPng = function() {
+    mainWindow.webContents.send('image');
+}
 let chooseAccelerator = function(key){
     return process.platform == 'darwin' ? 'Command+' + key : 'Ctrl+' + key;
 };
@@ -67,6 +74,13 @@ const mainMenuTemplate = [
                 accelerator: chooseAccelerator("W"),
                 click(){
                     createItemWindow();
+                }
+            },
+            {
+                label: 'Save as..',
+                accelerator: chooseAccelerator("S"),
+                click(){
+                    saveAsPng();
                 }
             },
             {

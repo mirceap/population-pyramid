@@ -9,9 +9,9 @@ function pyramidBuilder(data, target, options) {
 
     var margin = {
             top: 50,
-            right: 10,
+            right: 17,
             bottom: 20,
-            left: 10,
+            left: 15,
             middle: 20
         },
         sectorWidth = (w / 2) - margin.middle,
@@ -149,12 +149,12 @@ function pyramidBuilder(data, target, options) {
 
     var xAxisRight = d3.axisBottom()
         .scale(xScale)
-        .tickFormat(d3.format('.0%'));
+        .tickFormat(d3.format('.1%'));
 
     var xAxisLeft = d3.axisBottom()
         // REVERSE THE X-AXIS SCALE ON THE LEFT SIDE BY REVERSING THE RANGE
         .scale(xScale.copy().range([leftBegin, 0]))
-        .tickFormat(d3.format('.0%'));
+        .tickFormat(d3.format('.1%'));
 
     // MAKE GROUPS FOR EACH SIDE OF CHART
     // scale(-1,1) is used to reverse the left side so the bars grow left instead of right

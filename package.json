@@ -10,6 +10,11 @@
   "author": "Pavel Mircea",
   "license": "MIT",
   "dependencies": {
-    "electron": "^3.0.10"
+    "bootstrap": "^4.1.3",
+    "dom-to-image": "^2.6.0",
+    "downloadjs": "^1.4.7",
+    "electron": "^3.0.10",
+    "jquery": "^1.9.1",
+    "popper.js": "^1.14.6"
   }
 }

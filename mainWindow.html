@@ -21,14 +21,19 @@
     </style>
 </head>
 <body>
-    <h1 id="subtitle" style="text-align: center">Piramida polulației</h1>
-    <h2 style="text-align: center" ></h2>
-    <div id="pyramid"></div>
-    <h4 id="comments" style="text-align: center;visibility: hidden;" contenteditable="true" class="single-line"></h4>
+        <!-- style="text-align: center;visibility: hidden;" contenteditable="true" class="single-line" -->
+    <div id="image">
+        <h1 id="title" class="text-center" contenteditable="true" class="single-line" style="text-align: center">Piramida polulației</h1>
+        <h2 style="text-align: center" ></h2>
+        <div id="pyramid"></div>
+        <h4 id="comments" class="text-center" style="text-align: center;visibility: hidden;" contenteditable="true" class="single-line" ></h4>
+    </div>
     <script>
         const electron = require('electron');
         const csvToArray = require('./libs/csvToArray');
         const parser = require('./libs/dataConverter.js');
+        var domToImage = require('dom-to-image');
+
         const { ipcRenderer } = electron;
         // data must be in a format with age, male, and female in each object 
         var exampleData = [{ age: '0-9', male: 10, female: 12 }, { age: '10-19', male: 14, female: 15 }, { age: '20-29', male: 15, female: 18 }, { age: '30-39', male: 18, female: 18 }, { age: '40-49', male: 21, female: 22 }, {age: '50-59', male: 19, female: 24 }, { age: '60-69', male: 15, female: 14 }, {age: '70-79', male: 8, female: 10 }, { age: '80-89', male: 4, female: 5 }, {age: '90+', male: 2, female: 3 }]; 
@@ -43,15 +48,15 @@
             height: heightX,
             width: widthX,
             style: {
-            leftBarColor: "#1f78b4",
-            rightBarColor: "#f33"
+                leftBarColor: "#1f78b4",
+                rightBarColor: "#f33"
             }
         };
 
         ipcRenderer.on('data', (e, data) => {
             // effects
             let comments = document.querySelector('#comments');
-            let title = document.querySelector('#subtitle');
+            let title = document.querySelector('#title');
             title.innerHTML =  "Piramida polulației - anul " + data.year;
             comments.style.visibility = "visible";
             comments.innerHTML = "";
@@ -70,7 +75,20 @@
 
             build(data.pyramidData, options);
         });
-        
+
+        ipcRenderer.on('image', () => {
+            var canvas = document.getElementById("image");
+            let title = document.querySelector('#title');
+            domToImage.toJpeg(canvas, { bgcolor: 'white', quality: 0.95 })
+                .then (function (dataUrl) {
+                    var img = new Image();
+                    img.src = dataUrl;
+                    require("downloadjs")(dataUrl, title.innerHTML+'.jpeg', "*.jpeg");
+                })
+                .catch(function (error) {
+                    alert('Imi pare rau sa iti stric ziua! :(\n' + error);
+                });
+            });
     </script>
 </body>
 </html>
