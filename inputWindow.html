@@ -2,15 +2,16 @@
 <html>
 <head>
     <title>Adauga date</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
 </head>
 <body>
     <form class="display:table">
         <div >
-            <label>Încărcare date: </label>
+            <a>Încărcare date: </a>
             <div class="display:table-cell" id="table">
                 <input type="text" disabled placeholder=".csv" id="pathInput">
                 <input type="file" id="dataset" style="display: none;" />
-                <input type="button" class="btn btn-primary" value="Caută" onclick="document.getElementById('dataset').click();" />
+                <input type="button" class="btn btn-warning" value="Caută" onclick="document.getElementById('dataset').click();" />
             </div>
         </div>
         <br/>
@@ -19,7 +20,7 @@
             <div id="populateMe"></div>
         </div>
         <br/>
-        <button type="submit" class="btn btn-success">OK</button>
+        <button type="submit" class="btn btn-outline-success btn-lg">OK</button>
     </form>
 
     <script>

@@ -26,22 +26,15 @@
         <h1 id="title" class="text-center" contenteditable="true" class="single-line" style="text-align: center">Piramida polulației</h1>
         <h2 style="text-align: center" ></h2>
         <div id="pyramid"></div>
-        <h4 id="comments" class="text-center" style="text-align: center;visibility: hidden;" contenteditable="true" class="single-line" ></h4>
+        <h3 id="comments" class="text-center" style="text-align: center;visibility: hidden;" contenteditable="true" class="single-line" ></h3>
     </div>
     <script>
         const electron = require('electron');
         const csvToArray = require('./libs/csvToArray');
         const parser = require('./libs/dataConverter.js');
         var domToImage = require('dom-to-image');
-
         const { ipcRenderer } = electron;
-        // data must be in a format with age, male, and female in each object 
-        var exampleData = [{ age: '0-9', male: 10, female: 12 }, { age: '10-19', male: 14, female: 15 }, { age: '20-29', male: 15, female: 18 }, { age: '30-39', male: 18, female: 18 }, { age: '40-49', male: 21, female: 22 }, {age: '50-59', male: 19, female: 24 }, { age: '60-69', male: 15, female: 14 }, {age: '70-79', male: 8, female: 10 }, { age: '80-89', male: 4, female: 5 }, {age: '90+', male: 2, female: 3 }]; 
-        const build = (data, options) => {
-            document.querySelector('#pyramid').innerText = "";
-            pyramidBuilder(data, '#pyramid', options);
-        };
-        
+
         const heightX = document.body.clientHeight - 0.2159 * document.body.clientHeight;
         const widthX =  document.body.clientWidth - 0.01 * document.body.clientWidth;
         var options = {
@@ -53,27 +46,41 @@
             }
         };
 
-        ipcRenderer.on('data', (e, data) => {
-            // effects
+        // data must be in a format with age, male, and female in each object 
+        var exampleData = [{ age: '0-9', male: 10, female: 12 }, { age: '10-19', male: 14, female: 15 }, { age: '20-29', male: 15, female: 18 }, { age: '30-39', male: 18, female: 18 }, { age: '40-49', male: 21, female: 22 }, {age: '50-59', male: 19, female: 24 }, { age: '60-69', male: 15, female: 14 }, {age: '70-79', male: 8, female: 10 }, { age: '80-89', male: 4, female: 5 }, {age: '90+', male: 2, female: 3 }]; 
+
+        const buildPyramid = (data, options) => {
+            document.querySelector('#pyramid').innerText = "";
+            pyramidBuilder(data, '#pyramid', options);
+        };
+        const numberWithCommas = (x) => {
+                return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        };
+        const setTotalString = (data) => {
             let comments = document.querySelector('#comments');
-            let title = document.querySelector('#title');
-            title.innerHTML =  "Piramida polulației - anul " + data.year;
             comments.style.visibility = "visible";
+
             comments.innerHTML = "";
             if (data.total.length > 0){
                 var sum = 0;
                 data.total.forEach(element => {
-                    comments.innerHTML += element.gender + ": " + element.value + " - ";
+                    comments.innerHTML += element.gender + ": " + numberWithCommas(element.value) + " - ";
                     sum += element.value;
                     if (data.total.indexOf(element) === data.total.length - 1){
-                        comments.innerHTML += " Total: " + sum;
+                        comments.innerHTML += " Total: " + numberWithCommas(sum);
                     }
                 });
             } else {
                 comments.innerHTML = "Figura nr. ";
             }
+        };
+        
 
-            build(data.pyramidData, options);
+        ipcRenderer.on('data', (e, data) => {
+            // effects
+            document.querySelector('#title').innerHTML =  "Piramida polulației - anul " + data.year;
+            setTotalString(data);
+            buildPyramid(data.pyramidData, options);
         });
 
         ipcRenderer.on('image', () => {
