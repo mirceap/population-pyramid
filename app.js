@@ -7,11 +7,14 @@ const { app, BrowserWindow, Menu, ipcMain }  = electron;
 let mainWindow;
 let inputWindow;
 
+// SET ENV
+process.env.NODE_ENV = 'production';
+
 // Listen for app to be ready
 app.on('ready', () => {
     // Create new window
     mainWindow = new BrowserWindow({
-        //resizable: false,
+        resizable: false,
         width: 1024,
         height: 720
     });
@@ -36,6 +39,7 @@ Menu.setApplicationMenu(mainMenu);
 function createItemWindow(){
     // Create new window
     inputWindow = new BrowserWindow({
+        resizable: false,
         width: 355,
         height: 205,
         title: 'Adauga date'
@@ -73,7 +77,11 @@ const mainMenuTemplate = [
                 label: 'Add Item',
                 accelerator: chooseAccelerator("W"),
                 click(){
-                    createItemWindow();
+                    if (inputWindow == null){
+                        createItemWindow();
+                    }else {
+                        inputWindow.show();
+                    }
                 }
             },
             {

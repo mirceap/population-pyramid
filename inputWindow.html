@@ -5,24 +5,20 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
 </head>
 <body>
-    <form class="display:table">
-        <div >
-            <a>Încărcare date: </a>
-            <div class="display:table-cell" id="table">
-                <input type="text" disabled placeholder=".csv" id="pathInput">
-                <input type="file" id="dataset" style="display: none;" />
-                <input type="button" class="btn btn-warning" value="Caută" onclick="document.getElementById('dataset').click();" />
-            </div>
+    <div id="container" class="col-md-3 offset-md-3" style="margin-top: 15px;">
+        <div>
+            <input class="input-lg col-md-12" style="border-radius:10px;"  type="text" disabled placeholder=".csv" id="pathInput">
+            <input type="file" id="dataset" style="display: none;" />
         </div>
-        <br/>
-        <div style="visibility: hidden;" id="listbox">
-            <label>Alege un an:</label>
-            <div id="populateMe"></div>
+        <div class="text-right"  style="margin-top: 10px;margin-bottom: 10px" >
+            <input type="button" class="btn btn-warning" value="Caută" onclick="document.getElementById('dataset').click();" />
         </div>
-        <br/>
-        <button type="submit" class="btn btn-outline-success btn-lg">OK</button>
-    </form>
-
+        <div style="visibility: hidden;" id="populateMe">&nbsp;</div>
+        <div>
+            
+            <button class="btn btn-outline-success btn-block" style="margin-top: 5px;" onClick="submit()">OK</button>
+        </div>
+    </div>
     <script>
         "use strict";
         const electron = require('electron');
@@ -33,12 +29,11 @@
 
         const path = document.querySelector('#pathInput');
         const dataSet = document.querySelector('#dataset');
-        const form = document.querySelector('form');
+        const form = document.querySelector('#submit');
 
         const csvData = [];
 
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
+        const submit = (e) => {
             const selected = document.querySelector("#selectList");
             if (selected === null || selected === undefined || selected === ""){
                 alert("Ups!\nAlegeti un fisier .csv!");
@@ -59,7 +54,7 @@
             }
             const resObj = { pyramidData: csvData[0].data[index], year: userPick, total: total }
             ipcRenderer.send('data', resObj);
-        });
+        };
         
         // Callback function for 
         // ToDo: handle error
@@ -68,15 +63,15 @@
             const result = parser.parseData(csvResult);
             if (result.errors.length === 0)
             {
-                const selectBox = document.querySelector("#listbox");
                 const yearField = document.querySelector("#populateMe");
                 yearField.innerHTML = "";
-
-                selectBox.style.visibility = 'visible';
+                yearField.style.visibility = 'visible';
 
                 const selectList = document.createElement("select");
+                selectList.setAttribute("class", "custom-select");
                 selectList.id = "selectList";
                 yearField.appendChild(selectList);
+                
 
                 result.value.years.forEach(element => {
                     var option = document.createElement("option");
