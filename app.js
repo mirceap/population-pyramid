@@ -11,7 +11,7 @@ let inputWindow;
 app.on('ready', () => {
     // Create new window
     mainWindow = new BrowserWindow({
-        //resizable: false,
+        resizable: false,
         width: 1024,
         height: 720
     });
@@ -36,6 +36,7 @@ Menu.setApplicationMenu(mainMenu);
 function createItemWindow(){
     // Create new window
     inputWindow = new BrowserWindow({
+        resizable: false,
         width: 355,
         height: 205,
         title: 'Adauga date'
