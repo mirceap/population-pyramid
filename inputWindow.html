@@ -13,10 +13,10 @@
         <div class="text-right"  style="margin-top: 10px;margin-bottom: 10px" >
             <input type="button" class="btn btn-warning" value="Caută" onclick="document.getElementById('dataset').click();" />
         </div>
-        <div style="visibility: hidden;" id="populateMe">&nbsp;</div>
-        <div>
-            
+        <div style="visibility: hidden;height: 38px;" id="populateMe">&nbsp;</div>
+        <div style="display:inline;">
             <button class="btn btn-outline-success btn-block" style="margin-top: 5px;" onClick="submit()">OK</button>
+            <button class="btn btn-outline-danger btn-block" style="margin-top: 5px;" onClick="self.close()">X</button>
         </div>
     </div>
     <script>
@@ -36,7 +36,7 @@
         const submit = (e) => {
             const selected = document.querySelector("#selectList");
             if (selected === null || selected === undefined || selected === ""){
-                alert("Ups!\nAlegeti un fisier .csv!");
+                alert("Alegeti un fisier .csv!");
             }
             if (selected.selectedIndex < 0){
                 alert("Alegeti un alt set de date");

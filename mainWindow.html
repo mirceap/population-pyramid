@@ -21,7 +21,6 @@
     </style>
 </head>
 <body>
-        <!-- style="text-align: center;visibility: hidden;" contenteditable="true" class="single-line" -->
     <div id="image">
         <h1 id="title" class="text-center" contenteditable="true" class="single-line" style="text-align: center">Piramida populației</h1>
         <h2 style="text-align: center" ></h2>
@@ -78,7 +77,7 @@
 
         ipcRenderer.on('data', (e, data) => {
             // effects
-            document.querySelector('#title').innerHTML =  "Piramida polulației - anul " + data.year;
+            document.querySelector('#title').innerHTML =  "Piramida populației - anul " + data.year;
             setTotalString(data);
             buildPyramid(data.pyramidData, options);
         });

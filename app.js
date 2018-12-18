@@ -18,6 +18,7 @@ app.on('ready', () => {
         width: 1024,
         height: 720
     });
+    mainWindow.setBack
     // Load html into window
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'mainWindow.html'),
@@ -40,10 +41,13 @@ function createItemWindow(){
     // Create new window
     inputWindow = new BrowserWindow({
         resizable: false,
+        frame: false,
+        backgroundColor: '#ffffe8',
         width: 355,
-        height: 205,
+        height: 240,
         title: 'Adauga date'
     });
+    inputWindow.setMenuBarVisibility(false);
     // Load html into window
     inputWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'inputWindow.html'),
@@ -74,7 +78,7 @@ const mainMenuTemplate = [
         label: 'File',
         submenu: [
             {
-                label: 'Add Item',
+                label: 'Adauga date',
                 accelerator: chooseAccelerator("W"),
                 click(){
                     if (inputWindow == null){
@@ -85,14 +89,14 @@ const mainMenuTemplate = [
                 }
             },
             {
-                label: 'Save as..',
+                label: 'Exporta ca PNG',
                 accelerator: chooseAccelerator("S"),
                 click(){
                     saveAsPng();
                 }
             },
             {
-                label: 'Quit',
+                label: 'Inchide',
                 accelerator: chooseAccelerator("Q"),
                 click(){
                     app.quit();
