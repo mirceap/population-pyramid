@@ -1,8 +1,9 @@
+'use strict'
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
 
-const { app, BrowserWindow, Menu, ipcMain }  = electron;
+const { app, dialog, BrowserWindow, Menu, ipcMain }  = electron;
 
 let mainWindow;
 let inputWindow;
@@ -102,6 +103,36 @@ const mainMenuTemplate = [
                     app.quit();
                 }
             }
+        ]
+    },
+    {
+        label: 'Despre',
+        submenu: [
+            {
+                label: 'Ajutor',
+                click(){
+                    dialog.showMessageBox(mainWindow, {
+                        type: "none",
+                        title: "Ajutor",
+                        message: "Aplicatia accepta fisiere .csv conform modelului disponibil pe site-ul INSSE.",
+                        buttons: ["OK"],
+                    } );
+                }
+            },
+            {
+                label: 'Despre',
+                click(){
+                    dialog.showMessageBox(mainWindow, {
+                        type: "none",
+                        title: "Scop",
+                        message: "Aplcatia a fost creata ca tema pentru materia Demografie (CSIE - ASE) 2019\n" + 
+                                "\nStudent: Pavel Mircea\nGrupa: 1121\n" + 
+                                "Proiect: https://github.com/mirceap/population-pyramid",
+                        buttons: ["OK"],
+                    } );
+                }
+            }
+        
         ]
     }
 ];
